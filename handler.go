@@ -13,8 +13,17 @@ type Handler struct {
 	search *wails.Store
 }
 
-func (s *Handler) WailsShutdown() {
+/*
+func (c *Handler) SendDialog(text string) {
+
+	fmt.Println("SEND DIALOOG")
+	c.r.Events.Emit("debug", text)
+}
+*/
+
+func (c *Handler) WailsShutdown() {
 	// De-Allocate some resources...
+	fmt.Println("WAILS SHUTDOWN")
 }
 
 func (c *Handler) WailsInit(runtime *wails.Runtime) error {
@@ -28,15 +37,18 @@ func (c *Handler) WailsInit(runtime *wails.Runtime) error {
 	}
 
 	clients := loadFile(path + "\\PROGRAMACION.xlsx")
+	fmt.Println("clients loaded")
 
 	c.r = runtime
 	c.store = runtime.Store.New("Clients", clients)
-	c.search = runtime.Store.New("Search", "")
+	//c.search = runtime.Store.New("Search", "")
 	return nil
 }
 func (c *Handler) GetAllClients() string {
 
+	//c.SendDialog("hi from goo")
 	fmt.Println("HANDLER RESET CLIENTS!!! ")
+	//c.r.Events.Emit("debug", "hello from gooo")
 	return c.store.Get().(string)
 }
 
@@ -60,10 +72,25 @@ func (c *Handler) GetByRoute(routeName string) string {
 	c.search.Set(search)
 	return search
 }
-func (c *Handler) GetByDate(EndDate string, MadeDate string) {
-	fmt.Println("GET BY DATE HANDLEER")
+func (c *Handler) Save(updates string) string {
+	fmt.Println("SAVE")
+
+	path, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+	}
+	//update clients
+	json := updateRoutes(c.store.Get().(string), updates)
+
+	bol := saveJson(path+"\\routes.json", json)
+	c.store.Set(json)
 	//c.store.Update("")
 	//c.store.Set("")
+	//c.r.Events.Emit("debug", "SAVEED MTFACKA")
+	if bol {
+		return "saaveed"
+	}
+	return "fuck"
 }
 func (c *Handler) GetByName(word string) {
 	fmt.Println("GET BY NAME HANDLEER")
