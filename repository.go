@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -44,40 +43,48 @@ var DAYS int = 30
 
 func updateRoutes(oldjson string, update string) string {
 	fmt.Println("update routes")
+	fmt.Println(update)
 
 	up := parseUpdateJson(update)
 	routes := parseJson(oldjson)
 
-	// lel, we could improve that by correlating each id with its index (route id is ok)
+	fmt.Println("from parsing jsons")
+	// lel, we could improve this by correlating each id with its index (route id is ok)
 	for _, u := range up {
+	next:
+		//for _, route := range routes {
+		for i := 0; i < len(routes); i++ {
 
-		for _, route := range routes {
-			if route.Id == u.RouteId {
+			if routes[i].Id == u.RouteId {
 
-				for _, client := range route.Clients {
-					if client.Id == u.ClientId {
+				for j := 0; j < len(routes[i].Clients); j++ {
 
-						for _, activity := range client.Activities {
+					if routes[i].Clients[j].Id == u.ClientId {
+
+						for k := 0; k < len(routes[i].Clients[j].Activities); k++ {
+							activity := routes[i].Clients[j].Activities[k]
+
 							if activity.Id == u.ActivityId {
+								fmt.Println("hello, creating activity")
 
 								a := CreateActivity([]string{activity.Name, activity.EndDate, u.Madedate})
-								activity.MadeDate = u.Madedate
-								activity.ColorWarn = a.ColorWarn
-
-								break
+								a.Id = activity.Id
+								routes[i].Clients[j].Activities[k] = a
+								// cool
+								break next
 							}
 						}
-						break
 					}
 
 				}
-				break
 			}
 		}
 	}
+
 	e, err := json.Marshal(routes)
 	//e, err := json.MarshalIndent(clients, "", "  ")
 	if err != nil {
+		fmt.Println("--error on updateRoutes--")
 		fmt.Println(err)
 		return ""
 	}
@@ -206,7 +213,7 @@ func loadFile(path string) string {
 			} else {
 				// if not, that row is an activity
 				// TODO: no hardcode the days
-				activity := CreateActivity(row)
+				activity := CreateActivity(row[1:])
 				activity.Id = idx
 				client.Activities = append(client.Activities, activity)
 			}
@@ -229,13 +236,15 @@ func CreateActivity(row []string) Activity {
 
 	toReturn := Activity{}
 
-	toReturn.Name = row[1]
-	toReturn.EndDate = row[2]
+	toReturn.Name = row[0]
+	toReturn.EndDate = row[1]
 
 	// madedate
 	end := ""
-	if len(row) > 3 {
-		end = row[3]
+	if len(row) == 3 {
+		fmt.Print("len roow 3")
+		fmt.Println(row[2])
+		end = row[2]
 	}
 	toReturn.MadeDate = end
 
@@ -247,7 +256,7 @@ func CreateActivity(row []string) Activity {
 	endate := parseDate(toReturn.EndDate)
 
 	if endate.Before(now) {
-		if end == "" {
+		if toReturn.MadeDate == "" {
 			toReturn.ColorWarn = 'r'
 		} else {
 			toReturn.ColorWarn = 'g'
@@ -259,16 +268,7 @@ func CreateActivity(row []string) Activity {
 	}
 	return toReturn
 }
-func saveJson(path string, json string) bool {
 
-	file, err := os.Create(path)
-	if err != nil {
-		return false
-	}
-	defer file.Close()
-	file.WriteString(json)
-	return true
-}
 func parseDate(date string) time.Time {
 	d := strings.Split(date, "/")
 	if len(d) < 2 {
@@ -298,9 +298,11 @@ func parseJson(clientsJSON string) []Route {
 
 func parseUpdateJson(up string) []Update {
 
+	fmt.Println("parse update json()")
 	var u []Update
 	err := json.Unmarshal([]byte(up), &u)
 	if err != nil {
+		fmt.Println("--Error--")
 		fmt.Println(err)
 		return nil
 	}
