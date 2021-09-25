@@ -1,11 +1,30 @@
+/* NOT ON IE11 =(*/
+:root {
+	--primary-bg-color: #577399;
+	--primary-bg-color-light:#bdd5ea;
+	--secondary-bg-color-dark: #495867;
+	--secondary-bg-color-light: #F7F7FF;
 
+	--red-color: #fe5f55;
+	--yellow-color: #f7ff58;
+	--blue-color: #64b5f6;
+
+  }
 html, 
 body {
-  background-color: white;
-  color: black;
+/* --secondary-bg-color-light*/
+  background-color:#F7F7FF;
+  /*color: black;*/
   width: 100%;
   height: 100%;
   margin: 0;
+}
+.header{
+	position:fixed;
+	top:0;
+    width:100%;
+    z-index:100;
+	margin-bottom: 10px;
 }
 .container {
   display: block;
@@ -14,32 +33,80 @@ body {
   margin-top: 1rem;
   font-size: 2rem;
 }
+/* warning num */
+.wrapper {
+	/*max-width: 20px;*/
+	display: flex;
+	justify-content: right;
+	align-items: center;
+	/*min-height: 100vh;*/
+}
+.badge {
+    display: inline-block;
+    /*min-width: 5px; */
+    padding: 5px 5px; /* pixel unit */
+    border-radius: 50%;
+    font-size: 1em;
+    text-align: right;
+    color: #5e565a;
+}
+.not-completed {
+	/*--red-color*/
+    background:#fe5f55 !important;
+}
+.timeline {
+	/* --yellow-color */
+    background: #f7ff58 !important;
+}
+.pending {
+	/* --blue-color */
+    background: #64b5f6 !important;
+}
 ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #333;
+  background-color: #495867;
 }
 
 li {
   float: left;
-}
-
-li a {
   display: block;
   color: white;
   text-align: center;
-  padding: 14px 16px;
+  padding: 13px 10px;
   text-decoration: none;
 }
 
-li a:hover {
-  background-color: #111;
+li:hover {
+	/* --primary-bg-color- */
+  background-color: #577399;
+}
+.no-hover{
+	pointer-events:none;
+}
+.search {
+	/*--primary-bg-color*/
+	background-color: #577399;
+}
+.search:hover{
+	/* --primary-bg-color-ligh */
+	background-color: #bdd5ea;
 }
 .table-container {
   white-space: nowrap;
   overflow-x: auto;
+}
+.title-route{
+	/* --primary-bg-color */
+	background-color: #577399 ;
+
+	font-weight: bold;
+	font-size: 1.75em;
+	padding-top: 10px;
+	padding-bottom: 5px;
+
 }
 .route{
   
@@ -47,6 +114,7 @@ li a:hover {
   overflow-y: scroll;
   max-height: 400px;
   width: 40%;
+  margin-top: 4%;
   margin-left: 20px; 
 }
 .small-text {
@@ -67,14 +135,16 @@ li a:hover {
 .styled-table {
   border-collapse: collapse;
   margin: 0px 0;
-  font-size: 0.9em;
+  font-size: 1em;
   font-family: sans-serif;
   width: 100%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 .styled-table thead tr {
-  background-color: #009879;
-  color: #ffffff;
+	/*--primary-bg-color-light */
+  background-color: #bdd5ea;
+  /* --secondary-bg-color-dark */
+  color: #495867;
   text-align: left;
 }
 .styled-table th{
@@ -82,6 +152,10 @@ li a:hover {
 }
 .styled-table td {
     padding: 6px 5px 0px 5px;
+}
+.styled-table th + th {
+    width: 18%;
+	padding: 6px 5px 0px 5px;
 }
 .styled-table tbody tr {
   border-bottom: 1px solid #dddddd;
@@ -99,14 +173,21 @@ li a:hover {
   color: #009879;
 }
 input {
+	/*
   background-color: rgb(254,254,254);
   color: black;
+  */
 }
 
 button {
+/*
   font-size: 1rem;
   background-color: white;
   color: black;
+  */
+}
+.selector{
+
 }
 
 /*! jQuery UI - v1.12.1 - 2021-09-23
