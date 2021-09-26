@@ -3,14 +3,10 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"os/exec"
-	"strings"
+	"os"
 
 	"github.com/wailsapp/wails"
 )
-
-// TODO
-// - i think that u could just add cdn files (jquery, bootstrap, etc..) here like this 2 below, but idk how.. yet
 
 //go:embed frontend/build/main.js
 var js string
@@ -18,19 +14,18 @@ var js string
 //go:embed frontend/build/main.css
 var css string
 
+var DAYS int = 30
+var routes_json string = "\\routes.json"
+var ext_excel string = "\\PROGRAMACION-UPDATED.xlsx"
+var int_excel string = "\\PROGRAMACION.xlsx"
+var path string
+
 func main() {
 
 	fmt.Println("MAAAAIN")
-	//get max window size
-	out, err := exec.Command("cmd", "/C", "wmic desktopmonitor get screenheight,screenwidth").Output()
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		info := strings.Split(string(out), "")
-		fmt.Println(len(info))
-		fmt.Println(info)
-	}
-	fmt.Println(string(out))
+	// get path()
+	path, _ = os.Getwd()
+
 	app := wails.CreateApp(&wails.AppConfig{
 		MinWidth:  1500,
 		MinHeight: 768,

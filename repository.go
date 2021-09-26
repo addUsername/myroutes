@@ -10,37 +10,6 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-type Route struct {
-	Id      int      `json:"routeid"`
-	Name    string   `json:"name"`
-	Clients []Client `json:"clients"`
-}
-
-type Client struct {
-	Id         int        `json:"clientid"`
-	Name       string     `json:"name"`
-	Dir        string     `json:"dir"`
-	Route      string     `json:"routename"`
-	Activities []Activity `json:"activities"`
-}
-
-// TODO:
-type Activity struct {
-	Id        int    `json:"activityid"`
-	Name      string `json:"name"`
-	EndDate   string `json:"enddate"`
-	MadeDate  string `json:"madedate"`
-	ColorWarn byte   `json:"colorwarning"`
-}
-type Update struct {
-	RouteId    int    `json:"routeid"`
-	ClientId   int    `json:"clientid"`
-	ActivityId int    `json:"activityid"`
-	Madedate   string `json:"madedate"`
-}
-
-var DAYS int = 30
-
 func updateRoutes(oldjson string, update string) string {
 	fmt.Println("update routes")
 	fmt.Println(update)
@@ -61,19 +30,27 @@ func updateRoutes(oldjson string, update string) string {
 
 					if routes[i].Clients[j].Id == u.ClientId {
 
-						for k := 0; k < len(routes[i].Clients[j].Activities); k++ {
-							activity := routes[i].Clients[j].Activities[k]
+						if u.ActivityId == -1 {
+							fmt.Println(" ADDing comment")
+							routes[i].Clients[j].Comments = u.Comments
+							break next
 
-							if activity.Id == u.ActivityId {
-								fmt.Println("hello, creating activity")
+						} else {
+							for k := 0; k < len(routes[i].Clients[j].Activities); k++ {
+								activity := routes[i].Clients[j].Activities[k]
 
-								a := CreateActivity([]string{activity.Name, activity.EndDate, u.Madedate})
-								a.Id = activity.Id
-								routes[i].Clients[j].Activities[k] = a
-								// cool
-								break next
+								if activity.Id == u.ActivityId {
+									fmt.Println("hello, creating activity")
+
+									a := CreateActivity([]string{activity.Name, activity.EndDate, u.Madedate})
+									a.Id = activity.Id
+									routes[i].Clients[j].Activities[k] = a
+									// cool
+									break next
+								}
 							}
 						}
+
 					}
 
 				}
@@ -93,10 +70,26 @@ func updateRoutes(oldjson string, update string) string {
 
 }
 
-func selectDays(routes string, enddate string) string {
+func selectDays(routes string, startdate string, enddate string) string {
 
 	fmt.Println("SELECT DAAYS FROM REPO")
-	dateToCompare := parseDate(enddate)
+	fmt.Println(startdate)
+	fmt.Println(enddate)
+
+	start := false
+	end := false
+
+	var startToCompare time.Time
+	var endToCompare time.Time
+
+	if startdate != "" {
+		startToCompare = parseDate(startdate)
+		start = true
+	}
+	if enddate != "" {
+		endToCompare = parseDate(enddate)
+		end = true
+	}
 
 	rout := parseJson(routes)
 
@@ -112,9 +105,20 @@ func selectDays(routes string, enddate string) string {
 
 				d := parseDate(activity.EndDate)
 
-				if d.Before(dateToCompare) {
-					ac = append(ac, activity)
+				if start && end {
+					if d.After(startToCompare) && d.Before(endToCompare) {
+						ac = append(ac, activity)
+					}
+				} else if start {
+					if d.After(startToCompare) {
+						ac = append(ac, activity)
+					}
+				} else {
+					if d.Before(endToCompare) {
+						ac = append(ac, activity)
+					}
 				}
+
 			}
 			if len(ac) > 0 {
 				client.Activities = ac
