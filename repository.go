@@ -161,6 +161,69 @@ func filterRoute(clientsJSON string, routename string) string {
 	}
 	return string(e)
 }
+
+//TODO Update path from hander to point ./files/.
+func JsonToExcel(pathNew string, pathOld string, routes string) bool {
+	fmt.Println("json to excel")
+	fmt.Println(pathOld)
+	fmt.Println(pathNew)
+	f, err := excelize.OpenFile(pathOld)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	rou := parseJson(routes)
+
+	for i := 0; i < len(rou); i++ {
+		clientIndex := 0
+		activityIndex := 0
+		client := Client{}
+		rows, err := f.GetRows(rou[i].Name)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+
+	next:
+		for j := 1; j < len(rows); j++ {
+
+			if len(rows[j]) == 1 {
+				if len(rou[i].Clients) <= clientIndex {
+					break next
+				}
+				fmt.Println("creating CLIENT")
+				//search client name and update its dates
+				client = rou[i].Clients[clientIndex]
+				clientIndex = clientIndex + 1
+				activityIndex = 0
+			} else if len(client.Activities) > activityIndex && client.Activities[activityIndex].MadeDate != "" {
+				/*if (client.Activities[activityIndex].MadeDate != ""){
+
+				}*/
+				f.SetCellValue(rou[i].Name, "D"+strconv.Itoa(j+1), client.Activities[activityIndex].MadeDate)
+				style, err := f.NewStyle(`{"font":{"family":"Verdana","size":8,"color":"#000000"}}`)
+				if err != nil {
+					fmt.Println(err)
+				}
+				err = f.SetCellStyle(rou[i].Name, "D"+strconv.Itoa(j+1), "D"+strconv.Itoa(j+1), style)
+
+				activityIndex = activityIndex + 1
+			} else {
+				activityIndex = activityIndex + 1
+			}
+
+		}
+	}
+	fmt.Println("saviing")
+	// Save spreadsheet by the given path.
+	if err := f.SaveAs(pathNew); err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return true
+
+}
+
 func loadFile(path string) string {
 
 	fmt.Println("LOAD FILEE")
