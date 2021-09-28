@@ -88,6 +88,7 @@ function drawClients(rou){
 				}				
 			}
 			var th = document.createElement("th")
+			th.span = 2
 
 			// Add comments as tooltip			
 			var tooltip = document.createElement("div")
@@ -176,14 +177,15 @@ function drawClients(rou){
 				td3.className = "date-child"
 				td3.onclick = editMadedate
 
-				function editMadedate(e){
+				function editMadedate(ev){
 					// Here, we just anotate which ids has been clicked and load and a datepicker inside the cell
 					console.log("EDIT MADE DATTEEE")
-					console.log(this.id)
-					this.innerHTML = `<input type="date" name="date2" id="`+ this.id+"-A"+`"" value=""/>`
-					//add datepicker
-					$("#"+this.id+"-A").datepicker();
 
+					if(ev.target.localName == "path" || ev.target.localName == "svg"){
+						this.innerHTML = `<input type="date" name="date2" id="`+ this.id+"-A"+`"" value=""/>`
+						//add datepicker
+						$("#"+this.id+"-A").datepicker();
+					}
 					pushUpdate(this.id+"-A")
 				}
 
@@ -195,18 +197,16 @@ function drawClients(rou){
 
 			};
 			row.appendChild(th)
-			// Add badges to thead 2nd column
-			
-			th2.innerHTML = `<div class="wrapper">
+			row.appendChild(th2)
+			// Add badges to thead 3rd column			
+			th3.innerHTML = `<div class="wrapper">
 				<span class="badge not-completed">`+notCompleted+`</span>
 				<span class="badge timeline">`+timeline+`</span>
-			</div>`
-
-			row.appendChild(th2)
+			</div>`			
 			row.appendChild(th3)
 			thead.appendChild(row)
+
 			table.appendChild(thead)
-			
 			table.appendChild(tbody)
 
 			routContent.appendChild(table)
@@ -431,6 +431,23 @@ function start(){
 	function doExport(){
 
 		console.log("doExport")
+		var prom = new Promise(function(resolve, reject) {
+			var json = window.backend.Handler.DoExport()
+			if (json) {
+			  	console.log("stuff worked")
+				resolve(json);
+			}  else {
+				console.log("fuuck")
+			  	reject(new Error("It broke"));
+			}
+		});
+		   
+		prom.then(function(json) {
+			console.log(json)
+			window.alert(json)
+		});
+
+
 	}
 	function doSettings(){
 
